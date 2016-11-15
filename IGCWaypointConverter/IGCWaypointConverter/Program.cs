@@ -45,19 +45,21 @@ namespace IGCWaypointConverter {
             Console.WriteLine("2: Custom data range");
             Console.Write("Choose --> ");
             var choice = Console.ReadKey().KeyChar;
+            Console.WriteLine();
+            Console.WriteLine();
             if (choice == '1') {
                 Console.WriteLine("Processing entire data set...");
                 fromUTC = igcFile.FromUTC;
                 toUTC = igcFile.ToUTC;
             } else if (choice == '2') {
                 Console.WriteLine("Please enter UTC start time in format yyyy-MM-dd HH:mm:ss");
-                fromUTC = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeUniversal);
+                fromUTC = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeUniversal).ToUniversalTime();
                 Console.WriteLine("Now the end time in the same format. Or 'X' to read to the end of the file");
                 var response = Console.ReadLine();
-                if (response == "X") {
+                if (response.ToLower() == "x") {
                     toUTC = igcFile.ToUTC;
                 } else {
-                    toUTC = DateTime.ParseExact(response, "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeUniversal);
+                    toUTC = DateTime.ParseExact(response, "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeUniversal).ToUniversalTime();
                 }
             } else {
                 throw new Exception("Incorrect user input");
@@ -73,6 +75,7 @@ namespace IGCWaypointConverter {
 
         static void ProduceOutput() {
             var sb = new StringBuilder();
+            sb.AppendLine("QGC WPL 110");
             foreach (var bRecord in igcFile.BRecords) {
                 if (bRecord.GetTimeUTC() < fromUTC) continue;
                 if (bRecord.GetTimeUTC() > toUTC) continue;
